@@ -56,9 +56,12 @@ object RobotContainer {
                 { driverController.leftX },
                 { -driverController.rightX * 0.8 }
             )
-        elevator.defaultCommand = elevator.setPower {
-            Volts.of(MathUtil.applyDeadband(driverController.rightY, 0.15)) + ELEVATOR_HOLD_VOLTAGE
-        }
+        elevator.defaultCommand =
+            elevator.setPower {
+                Volts.of(
+                    MathUtil.applyDeadband(driverController.rightY, 0.15)
+                ) + ELEVATOR_HOLD_VOLTAGE
+            }
     }
 
     private fun configureButtonBindings() {
@@ -76,8 +79,12 @@ object RobotContainer {
                     .ignoringDisable(true)
             )
 
-        driverController.rightTrigger().onTrue(runOnce ({gripperMotor.setVoltage(4.0)}))
-        driverController.leftTrigger().onTrue(runOnce ({gripperMotor.setVoltage(-4.0)}))
+        driverController
+            .rightTrigger()
+            .onTrue(runOnce({ gripperMotor.setVoltage(4.0) }))
+        driverController
+            .leftTrigger()
+            .onTrue(runOnce({ gripperMotor.setVoltage(-4.0) }))
     }
 
     fun getAutonomousCommand(): Command = Commands.none()

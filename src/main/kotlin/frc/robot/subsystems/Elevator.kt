@@ -11,5 +11,6 @@ import java.util.function.Supplier
 class Elevator : SubsystemBase() {
     private val motor = TalonFX(1)
 
-    fun setPower(voltage: Supplier<Voltage>): Command = Commands.run({ motor.setVoltage(voltage.get().`in`(Volts)) })
+    fun setPower(voltage: Supplier<Voltage>): Command =
+        Commands.run({ motor.setVoltage(voltage.get().`in`(Volts)) })
 }
