@@ -1,6 +1,9 @@
 package frc.robot
 
+import com.ctre.phoenix6.configs.MotorOutputConfigs
+import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.hardware.TalonFX
+import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.math.MathUtil
 import edu.wpi.first.math.geometry.Pose2d
 import edu.wpi.first.math.geometry.Rotation2d
@@ -8,7 +11,7 @@ import edu.wpi.first.units.Units.Volts
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller
 import frc.robot.lib.enableAutoLogOutputFor
 import frc.robot.subsystems.Elevator
 import frc.robot.subsystems.drive.DriveCommands
@@ -23,9 +26,13 @@ import org.littletonrobotics.junction.AutoLogOutput
  * and trigger mappings) should be declared here.
  */
 object RobotContainer {
-    private val gripperMotor = TalonFX(2)
+    private val gripperMotor = TalonFX(16)
+    private val gripperConfig = TalonFXConfiguration().apply {
+        MotorOutput = MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
+    }
 
-    private val driverController = CommandXboxController(0)
+
+    private val driverController = CommandPS5Controller(0)
 
     private val swerveDrive = frc.robot.swerveDrive
 
@@ -34,6 +41,7 @@ object RobotContainer {
     private val ELEVATOR_HOLD_VOLTAGE = Volts.of(0.0)
 
     init {
+        gripperMotor.configurator.apply(gripperConfig)
 
         configureButtonBindings()
         configureDefaultCommands()
@@ -60,31 +68,35 @@ object RobotContainer {
             elevator.setPower {
                 Volts.of(
                     MathUtil.applyDeadband(driverController.rightY, 0.15)
-                ) + ELEVATOR_HOLD_VOLTAGE
+                ) * 4.0 + ELEVATOR_HOLD_VOLTAGE
             }
     }
 
+    private fun stopGripper(): Command = runOnce({ gripperMotor.setVoltage(0.0) })
+
     private fun configureButtonBindings() {
         driverController
-            .back()
+            .options()
             .onTrue(
-                Commands.runOnce(
-                        {
-                            swerveDrive.resetGyroBasedOnAlliance(
-                                Rotation2d.kZero
-                            )
-                        },
-                        swerveDrive
-                    )
+                runOnce(
+                    {
+                        swerveDrive.resetGyroBasedOnAlliance(
+                            Rotation2d.kZero
+                        )
+                    },
+                    swerveDrive
+                )
                     .ignoringDisable(true)
             )
 
         driverController
-            .rightTrigger()
-            .onTrue(runOnce({ gripperMotor.setVoltage(4.0) }))
+            .R1()
+            .whileTrue(runOnce({ gripperMotor.setVoltage(4.0) }))
+            .onFalse(stopGripper())
         driverController
-            .leftTrigger()
-            .onTrue(runOnce({ gripperMotor.setVoltage(-4.0) }))
+            .L1()
+            .whileTrue(runOnce({ gripperMotor.setVoltage(-3.0) }))
+            .onFalse(stopGripper())
     }
 
     fun getAutonomousCommand(): Command = Commands.none()
