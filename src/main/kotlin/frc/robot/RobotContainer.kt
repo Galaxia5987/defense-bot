@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.Commands.runOnce
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller
 import frc.robot.lib.enableAutoLogOutputFor
+import frc.robot.lib.getPose2d
 import frc.robot.subsystems.Elevator
 import frc.robot.subsystems.drive.DriveCommands
+import frc.robot.subsystems.drive.alignToPose
 import org.ironmaple.simulation.SimulatedArena
 import org.littletonrobotics.junction.AutoLogOutput
 
@@ -74,6 +76,7 @@ object RobotContainer {
 
     private fun stopGripper(): Command = runOnce({ gripperMotor.setVoltage(0.0) })
 
+
     private fun configureButtonBindings() {
         driverController
             .options()
@@ -97,6 +100,9 @@ object RobotContainer {
             .L1()
             .whileTrue(runOnce({ gripperMotor.setVoltage(-3.0) }))
             .onFalse(stopGripper())
+        driverController.circle().whileTrue(alignToPose(getPose2d(x = 1.0, y = 1.0)))
+        driverController.square().whileTrue(runOnce ({ swerveDrive.resetOdometry(getPose2d(x = 0.0)) }))
+
     }
 
     fun getAutonomousCommand(): Command = Commands.none()
