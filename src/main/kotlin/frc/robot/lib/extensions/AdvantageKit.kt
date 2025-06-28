@@ -1,9 +1,8 @@
-package frc.robot.lib
+package frc.robot.lib.extensions
 
 import edu.wpi.first.math.controller.HolonomicDriveController
 import edu.wpi.first.math.controller.PIDController
 import edu.wpi.first.math.controller.ProfiledPIDController
-import edu.wpi.first.math.geometry.*
 import edu.wpi.first.units.Measure
 import edu.wpi.first.units.MutableMeasure
 import edu.wpi.first.units.Unit as WPIUnit
@@ -13,26 +12,21 @@ import edu.wpi.first.wpilibj2.command.button.Trigger
 import kotlin.reflect.KProperty
 import org.littletonrobotics.junction.AutoLogOutputManager
 import org.littletonrobotics.junction.LogTable
-import org.littletonrobotics.junction.Logger.recordOutput
+import org.littletonrobotics.junction.Logger
 import org.littletonrobotics.junction.inputs.LoggableInputs
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d
 
 abstract class AutoLogInputs : LoggableInputs {
     fun log(value: Double, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun log(value: Int, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun log(value: String, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun log(value: Boolean, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun log(value: Long, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun <T : StructSerializable> log(value: T, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
 
@@ -50,25 +44,19 @@ abstract class AutoLogInputs : LoggableInputs {
     fun <
         U : WPIUnit,
         Base : Measure<WPIUnit>,
-        M : MutableMeasure<U, Base, M>,
-    > log(value: M, key: String? = null) =
+        M : MutableMeasure<U, Base, M>> log(value: M, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
 
     fun log(value: DoubleArray, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun log(value: IntArray, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun log(value: Array<String>, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun log(value: BooleanArray, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun log(value: LongArray, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
-
     fun <T : StructSerializable> log(value: Array<T>, key: String? = null) =
         LoggedInput(value, key, LogTable::put, LogTable::get)
 
@@ -79,7 +67,7 @@ abstract class AutoLogInputs : LoggableInputs {
         private var value: T,
         private val name: String? = null,
         private val toLog: LogTable.(String, T) -> Unit,
-        private val fromLog: LogTable.(String, T) -> T,
+        private val fromLog: LogTable.(String, T) -> T
     ) {
         operator fun getValue(thisRef: Any, property: KProperty<*>) = value
         operator fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
@@ -88,7 +76,7 @@ abstract class AutoLogInputs : LoggableInputs {
 
         operator fun provideDelegate(
             thisRef: Any,
-            property: KProperty<*>,
+            property: KProperty<*>
         ): LoggedInput<T> {
             val namespace = this.name ?: property.name
             toLogRunners.add { logTable ->
@@ -124,15 +112,15 @@ fun enableAutoLogOutputFor(vararg roots: Any) {
 fun Any.log(prefix: String, key: String) {
     val fullLoggingPath = "$prefix/$key"
     when (this) {
-        is String -> recordOutput(fullLoggingPath, this)
-        is Int -> recordOutput(fullLoggingPath, this)
-        is Double -> recordOutput(fullLoggingPath, this)
-        is Boolean -> recordOutput(fullLoggingPath, this)
-        is Measure<*> -> recordOutput(fullLoggingPath, this)
-        is StructSerializable -> recordOutput(fullLoggingPath, this)
-        is LoggedMechanism2d -> recordOutput(fullLoggingPath, this)
-        is Trigger -> recordOutput(fullLoggingPath, this)
-        else -> recordOutput(fullLoggingPath, this.toString())
+        is String -> Logger.recordOutput(fullLoggingPath, this)
+        is Int -> Logger.recordOutput(fullLoggingPath, this)
+        is Double -> Logger.recordOutput(fullLoggingPath, this)
+        is Boolean -> Logger.recordOutput(fullLoggingPath, this)
+        is Measure<*> -> Logger.recordOutput(fullLoggingPath, this)
+        is StructSerializable -> Logger.recordOutput(fullLoggingPath, this)
+        is LoggedMechanism2d -> Logger.recordOutput(fullLoggingPath, this)
+        is Trigger -> Logger.recordOutput(fullLoggingPath, this)
+        else -> Logger.recordOutput(fullLoggingPath, this.toString())
     }
 }
 
@@ -174,7 +162,7 @@ fun HolonomicDriveController.log() {
     xController.log("XController")
     yController.log("YController")
     thetaController.log("ThetaController")
-    recordOutput("Alignment/Controllers/AtGoal", atReference())
+    Logger.recordOutput("Alignment/Controllers/AtGoal", atReference())
 }
 
 // ```
