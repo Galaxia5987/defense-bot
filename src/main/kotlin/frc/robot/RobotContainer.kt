@@ -5,9 +5,12 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.math.geometry.Pose2d
+import edu.wpi.first.units.Units
 import edu.wpi.first.wpilibj2.command.Command
 import edu.wpi.first.wpilibj2.command.Commands
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController
+import frc.robot.lib.extensions.degrees
 import frc.robot.lib.extensions.enableAutoLogOutputFor
 import frc.robot.subsystems.Elevator
 import frc.robot.subsystems.drive.DriveCommands
@@ -22,8 +25,7 @@ import org.littletonrobotics.junction.AutoLogOutput
  * and trigger mappings) should be declared here.
  */
 object RobotContainer {
-    private val driverController = CommandPS5Controller(0)
-    private val swerveDrive = frc.robot.swerveDrive
+    private val driverController = CommandXboxController(0)
 
     val elevator = Elevator()
 
@@ -61,7 +63,9 @@ object RobotContainer {
             )
     }
 
-    private fun configureButtonBindings() {}
+    private fun configureButtonBindings() {
+        driverController.y().whileTrue(goTo(Units.Meters.zero(), Units.Meters.zero(), 0.0.degrees))
+    }
 
-    fun getAutonomousCommand(): Command = Commands.none()
+    fun getAutonomousCommand(): Command = goTo(Units.Meters.zero(), Units.Meters.zero(), 0.0.degrees)
 }
