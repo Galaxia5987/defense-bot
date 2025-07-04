@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController
 import frc.robot.lib.extensions.degrees
 import frc.robot.lib.extensions.enableAutoLogOutputFor
+import frc.robot.lib.extensions.volts
 import frc.robot.subsystems.Elevator
 import frc.robot.subsystems.drive.DriveCommands
 import org.ironmaple.simulation.SimulatedArena
@@ -64,6 +65,11 @@ object RobotContainer {
     }
 
     private fun configureButtonBindings() {
+        driverController.start().onTrue(resetRobotRotation())
+
+        driverController.povUp().whileTrue(runElevator(3.0.volts))
+        driverController.povDown().whileTrue(runElevator((-3.0).volts))
+
         driverController.y().whileTrue(goTo(Units.Meters.zero(), Units.Meters.zero(), 0.0.degrees))
     }
 

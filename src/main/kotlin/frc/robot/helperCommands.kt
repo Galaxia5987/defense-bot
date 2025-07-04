@@ -24,6 +24,8 @@ fun runGripper(voltage: Voltage): Command =
 
 fun stopGripper(): Command = TODO("They need to fill this")
 
+fun stopElevator(): Command = TODO("They need to fill this")
+
 fun lockDrive(): Command = runOnce({ swerveDrive.stopWithX() })
 
 fun resetRobotRotation(): Command =
