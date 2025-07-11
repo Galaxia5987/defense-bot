@@ -2,6 +2,7 @@ package frc.robot
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs
 import com.ctre.phoenix6.configs.TalonFXConfiguration
+import com.ctre.phoenix6.controls.VoltageOut
 import com.ctre.phoenix6.hardware.TalonFX
 import com.ctre.phoenix6.signals.NeutralModeValue
 import edu.wpi.first.math.geometry.Pose2d
@@ -28,19 +29,9 @@ import org.littletonrobotics.junction.AutoLogOutput
 object RobotContainer {
     private val driverController = CommandXboxController(0)
 
-    val elevator = Elevator()
-
-    val gripperMotor = TalonFX(16)
-
-    private val gripperConfig =
-        TalonFXConfiguration().apply {
-            MotorOutput =
-                MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
-        }
+    private val motor: TalonFX = TalonFX(0, "motor")
 
     init {
-        gripperMotor.configurator.apply(gripperConfig)
-
         configureButtonBindings()
         configureDefaultCommands()
 
@@ -66,12 +57,10 @@ object RobotContainer {
 
     private fun configureButtonBindings() {
         driverController.start().onTrue(resetRobotRotation())
-
-        driverController.povUp().whileTrue(runElevator(3.0.volts))
-        driverController.povDown().whileTrue(runElevator((-3.0).volts))
-
-        driverController.y().whileTrue(goTo(Units.Meters.zero(), Units.Meters.zero(), 0.0.degrees))
+        val reqOn = VoltageOut(Units.Volts.of(3.0))
+        val reqOff = VoltageOut(Units.Volts.zero())
+        driverController.a().whileTrue(Commands.startEnd({motor.setControl(reqOn)}, {motor.setControl(reqOff)}))
     }
 
-    fun getAutonomousCommand(): Command = goTo(Units.Meters.zero(), Units.Meters.zero(), 0.0.degrees)
+    fun getAutonomousCommand(): Command = Commands.none()
 }
